@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 /**
  * Created by Brendan on 20/08/2017.

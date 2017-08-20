@@ -7,6 +7,8 @@ import java.net.Socket;
  */
 public class TaxServer {
 
+    TaxCalculator taxCalculator = new TaxCalculator();
+
     public static void main(String[] args) {
         TaxServer server = new TaxServer();
         server.start();
@@ -14,7 +16,7 @@ public class TaxServer {
 
     public void start(){
         int portNumber = 12345;
-        int[] storedValues = {0,0,0,0};
+        String[] V = {"","","",""};
 
         try (
                 ServerSocket serverSocket = new ServerSocket(portNumber);
@@ -30,13 +32,18 @@ public class TaxServer {
                         break;
                     case "STORE\n":
                         for (int i = 0; i < 4; i++) {
-                            storedValues[i] = Integer.parseInt(inputLine);
+                            V[i] = inputLine;
                         }
+                        taxCalculator.add(V[0],V[1],V[2],V[3]);
                         out.println("STORE: OK");
                         break;
-                    case "QUERY\n":break;
+                    case "QUERY\n":
+                        out.println(taxCalculator.query());
+                        break;
                     case "BYE\n":break;
                     case "END\n":break;
+                    default:
+
 
                 }
             }
