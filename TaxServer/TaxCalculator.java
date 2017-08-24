@@ -13,14 +13,10 @@ public class TaxCalculator {
     public void add(String min, String max, String base, String perDollar){
         //TODO: deal with ~
         TaxRange range = new TaxRange(Integer.parseInt(min), Integer.parseInt(max), Integer.parseInt(base), Integer.parseInt(perDollar));
-        if(taxes.size()==0){ //was empty array
-            taxes.add(range);
-        }else if(taxes.get(0).min > range.max){// new smallest range
-            taxes.add(0,range);
-        }else if(taxes.get(taxes.size()-1).max < range.min){//new largest range
-            taxes.add(range);
-        }else{
-
+        for (int i = 0; i < taxes.size(); i++) {
+            if(taxes.get(i).min>range.min){
+                taxes.add(i, range);
+            }
         }
 
 

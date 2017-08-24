@@ -7,7 +7,7 @@ import java.net.Socket;
  */
 public class TaxServer {
 
-    TaxCalculator taxCalculator = new TaxCalculator();
+    private TaxCalculator taxCalculator = new TaxCalculator();
 
     public static void main(String[] args) {
         TaxServer server = new TaxServer();
@@ -26,25 +26,29 @@ public class TaxServer {
         ) {
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
+                System.out.println(inputLine);
                 switch (inputLine){
-                    case "TAX\n":
-                        out.println("TAX: OK\n");
+                    case "TAX":
+                        out.println("TAX: OK");
                         break;
-                    case "STORE\n":
+                    case "STORE":
                         for (int i = 0; i < 4; i++) {
-                            V[i] = inputLine;
+                            V[i] = in.readLine();
                         }
                         taxCalculator.add(V[0],V[1],V[2],V[3]);
                         out.println("STORE: OK");
                         break;
-                    case "QUERY\n":
+                    case "QUERY":
                         out.println(taxCalculator.query());
                         break;
-                    case "BYE\n":break;
-                    case "END\n":break;
+                    case "BYE":
+                        serverSocket.close();
+                        break;
+                    case "END":
+                        return;
+
                     default:
-
-
+                        out.println(taxCalculator.calculate(Integer.parseInt(inputLine)));
                 }
             }
         } catch (IOException e) {

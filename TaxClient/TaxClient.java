@@ -24,8 +24,18 @@ public class TaxClient {
         ) {
             String userInput;
             while ((userInput = stdIn.readLine()) != null) {
-                out.println(userInput);
-                System.out.println("echo: " + in.readLine());
+                switch(userInput){
+                    case "STORE":
+                        for (int i = 0; i < 4; i++) {
+                            userInput+="\n"+stdIn.readLine();
+                        }
+                        out.print(userInput);
+                    default:
+                        out.println(userInput);
+                }
+
+                System.out.println(in.readLine());
+
             }
         } catch (Exception e) {
             System.out.println(e.toString());
