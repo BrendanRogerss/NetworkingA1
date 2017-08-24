@@ -16,7 +16,8 @@ public class TaxRange {
     }
 
     public String toString(){
-        return Integer.toString(min)+Integer.toString(max)+Integer.toString(base)+Integer.toString(perDollar)+"\n";
+        return Integer.toString(min)+" "+(max==Integer.MAX_VALUE?"~":Integer.toString(max))+
+                " "+Integer.toString(base)+" "+Integer.toString(perDollar)+"\n";
     }
 
 }

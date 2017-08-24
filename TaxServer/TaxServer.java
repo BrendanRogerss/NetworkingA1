@@ -7,6 +7,7 @@ import java.net.Socket;
  */
 public class TaxServer {
 
+    int portNumber = 54321;
     private TaxEngine taxEngine = new TaxEngine();
 
     public static void main(String[] args) {
@@ -15,8 +16,26 @@ public class TaxServer {
     }
 
     public void start(){
-        int portNumber = 12345;
-        String[] V = {"","","",""};
+
+        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Enter in a port number, or '0' to use the default (54321)");
+        String customPort = "";
+        try {
+            if(!(customPort=stdIn.readLine()).equals("0")){
+                portNumber = Integer.parseInt(customPort);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Server Started on port: "+portNumber);
+        while(true) {
+            protocol();
+        }
+
+    }
+
+    public void protocol(){
+        String[] V = {"", "", "", ""};
 
         try (
                 ServerSocket serverSocket = new ServerSocket(portNumber);
@@ -25,39 +44,38 @@ public class TaxServer {
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
             String inputLine;
+
             while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
-                switch (inputLine){
+                switch (inputLine) {
                     case "TAX":
                         out.println("TAX: OK");
                         break;
                     case "STORE":
                         for (int i = 0; i < 4; i++) {
                             String inputNumber = in.readLine();
-                            System.out.println(inputNumber);
-                            if(inputNumber.equals("~")){
-                                inputNumber=Integer.toString(Integer.MAX_VALUE);
+                            if (inputNumber.equals("~")) {
+                                inputNumber = Integer.toString(Integer.MAX_VALUE);
                             }
                             V[i] = inputNumber;
                         }
-                        taxEngine.add(V[0],V[1],V[2],V[3]);
+                        taxEngine.add(V[0], V[1], V[2], V[3]);
                         out.println("STORE: OK");
                         break;
                     case "QUERY":
                         out.println(taxEngine.query());
                         break;
                     case "BYE":
-                        serverSocket.close();
-                        break;
-                    case "END":
+                        out.println("BYE: OK");
                         return;
-
+                    case "END":
+                        out.println("END: OK");
+                        System.exit(1);
                     default:
                         String output;
-                        try{
+                        try {
                             int inputNumber = Integer.parseInt(inputLine);
-                            output = taxEngine.calculate(inputNumber);
-                        }catch (NumberFormatException e){
+                            output = "TAX IS " + taxEngine.calculate(inputNumber);
+                        } catch (NumberFormatException e) {
                             output = "Unknown input";
                         }
                         out.println(output);
@@ -68,5 +86,6 @@ public class TaxServer {
                     + portNumber + " or listening for a connection");
             System.out.println(e.getMessage());
         }
+
     }
 }
