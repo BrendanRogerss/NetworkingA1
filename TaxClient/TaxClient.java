@@ -19,22 +19,28 @@ public class TaxClient {
                 Socket echoSocket = new Socket(hostName, portNumber);
                 PrintWriter out =
                         new PrintWriter(echoSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+                BufferedReader serverIn = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
                 BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))
         ) {
             String userInput;
             while ((userInput = stdIn.readLine()) != null) {
                 switch(userInput){
                     case "STORE":
+                        out.println(userInput);
                         for (int i = 0; i < 4; i++) {
-                            userInput+="\n"+stdIn.readLine();
+                            out.println(stdIn.readLine());
                         }
-                        out.print(userInput);
+                        break;
+                    case"QUERY":
+                        out.println(userInput);
+                        while(serverIn.ready()){
+                            System.out.println(serverIn.readLine());
+                        }
                     default:
                         out.println(userInput);
                 }
+                    System.out.println(serverIn.readLine());
 
-                System.out.println(in.readLine());
 
             }
         } catch (Exception e) {
