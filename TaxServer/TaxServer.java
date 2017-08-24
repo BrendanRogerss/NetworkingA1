@@ -69,7 +69,7 @@ public class TaxServer {
                         return;
                     case "END":
                         out.println("END: OK");
-                        System.exit(1);
+                        System.exit(0);
                     default:
                         String output;
                         try {

@@ -66,11 +66,11 @@ public class TaxClient {
                         case "BYE":
                             out.println(userInput);
                             System.out.println(serverIn.readLine());
-                            break;
+                            return;
                         case "END":
                             out.println(userInput);
                             System.out.println(serverIn.readLine());
-                            break;
+                            return;
                         default:
                             out.println(userInput);
                             System.out.println(serverIn.readLine());

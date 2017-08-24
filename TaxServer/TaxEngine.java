@@ -11,32 +11,48 @@ public class TaxEngine {
     }
 
     public void add(String min, String max, String base, String perDollar){
-        TaxRange range = new TaxRange(Integer.parseInt(min), Integer.parseInt(max), Integer.parseInt(base), Integer.parseInt(perDollar));
+        TaxRange newTax = new TaxRange(Integer.parseInt(min), Integer.parseInt(max), Integer.parseInt(base), Integer.parseInt(perDollar));
+        //remove any ranges that get consumed or insert the new value if it is in the middle of another
         for (int i = 0; i < taxes.size(); i++) {
-            if(taxes.get(i).min>range.min){
-                taxes.add(i, range);
+            TaxRange currentTax = taxes.get(i);
+            if(currentTax.min<newTax.min && currentTax.max>newTax.max){ //split
+                TaxRange rightCurrent = new TaxRange(newTax.max+1, currentTax.max, currentTax.base, currentTax.perDollar);
+                currentTax.max = newTax.min-1;
+                taxes.add(i+1,newTax);
+                taxes.add(i+2,rightCurrent);
+                return;
+            }if(newTax.min < currentTax.min && newTax.max > currentTax.max){//remove
+                taxes.remove(i);
+                i--;
+            }
+        }
+
+        for (int i = 0; i < taxes.size(); i++) {
+            TaxRange currentTax = taxes.get(i);
+            if(newTax.max>currentTax.min && newTax.max < currentTax.min){ //shorten left side of current
+                currentTax.min = newTax.max+1;
+                taxes.add(i,newTax);
+                return;
+            }else if(newTax.min>currentTax.min && newTax.min<currentTax.max && newTax.max > currentTax.max){//cuts off the right half
+                currentTax.max = newTax.min-1;
+                if(i+1 < taxes.size() && taxes.get(i+1).min < newTax.max){ //cuts off
+                    taxes.get(i+1).min = newTax.max+1;
+                }
+                taxes.add(i+1, newTax);
                 return;
             }
         }
-        taxes.add(taxes.size(),range);
 
-        for (int i = 0; i < taxes.size() - 1; i++) {
-            TaxRange currentT = taxes.get(i);
-            TaxRange nextT = taxes.get(i+1);
-            if(currentT.min>=nextT.min && currentT.max<=nextT.max){ //new range encompass old range
-                System.out.println("Removing");
-                taxes.remove(i);
-                i--;
-            }else if(currentT.max<nextT.min){ //new range cuts tail off old range
-                System.out.println("changing tail");
-                currentT.max=nextT.min-1;
-            }else if(currentT.min<nextT.min && currentT.max>nextT.max){ //new range is inside old range
-                System.out.println("splitting ranges");
-                TaxRange newRange = new TaxRange(nextT.max+1, currentT.max, currentT.base,currentT.perDollar);
-                currentT.max = nextT.min-1;
-                taxes.add(i+2, newRange);
+        for (int i = 0; i < taxes.size(); i++) {
+            TaxRange currentTax = taxes.get(i);
+            if(newTax.min<currentTax.min){
+                taxes.add(i,newTax);
+                return;
             }
+
         }
+        taxes.add(newTax);
+
     }
 
     public String query(){ //return all ranges
@@ -54,7 +70,7 @@ public class TaxEngine {
             TaxRange tax = taxes.get(i);
             if(value>tax.min && value<tax.max){
                 double returnValue = tax.base+(((value-tax.min)*tax.perDollar)/100);
-                output=Double.toString(returnValue);
+                output=Integer.toString((int)returnValue);
             }
         }
         return output;
