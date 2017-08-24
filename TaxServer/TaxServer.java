@@ -18,26 +18,27 @@ public class TaxServer {
     public void start(){
 
         BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+        //let the user define a custom host number
         System.out.println("Enter in a port number, or '0' to use the default (54321)");
         String customPort = "";
         try {
             if(!(customPort=stdIn.readLine()).equals("0")){
-                portNumber = Integer.parseInt(customPort);
+                portNumber = Integer.parseInt(customPort); //set the port number
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         System.out.println("Server Started on port: "+portNumber);
-        while(true) {
-            protocol();
+        while(true) { //while the server hasnt received "END"
+            protocol(); //run the main server function
         }
 
     }
 
     public void protocol(){
-        String[] V = {"", "", "", ""};
+        String[] V = {"", "", "", ""}; //a list to store range values
 
-        try (
+        try (   //declare resources here so they are returned when function closes
                 ServerSocket serverSocket = new ServerSocket(portNumber);
                 Socket clientSocket = serverSocket.accept();
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -45,40 +46,40 @@ public class TaxServer {
         ) {
             String inputLine;
 
-            while ((inputLine = in.readLine()) != null) {
+            while ((inputLine = in.readLine()) != null) { //while the connection with the client exists
                 switch (inputLine) {
-                    case "TAX":
+                    case "TAX": //return the TAX message
                         out.println("TAX: OK");
                         break;
-                    case "STORE":
-                        for (int i = 0; i < 4; i++) {
-                            String inputNumber = in.readLine();
-                            if (inputNumber.equals("~")) {
-                                inputNumber = Integer.toString(Integer.MAX_VALUE);
+                    case "STORE": //prepare to store a new tax range
+                        for (int i = 0; i < 4; i++) { //loop over the 4 values
+                            String inputNumber = in.readLine(); //get value from the client
+                            if (inputNumber.equals("~")) { //check for undefined number
+                                inputNumber = Integer.toString(Integer.MAX_VALUE); //set it to max int
                             }
-                            V[i] = inputNumber;
+                            V[i] = inputNumber; //store the values
                         }
-                        taxEngine.add(V[0], V[1], V[2], V[3]);
-                        out.println("STORE: OK");
+                        taxEngine.add(V[0], V[1], V[2], V[3]); //add them to the database
+                        out.println("STORE: OK"); //return ok message to the client
                         break;
-                    case "QUERY":
+                    case "QUERY": //return query of all tax ranges from the database
                         out.println(taxEngine.query());
                         break;
-                    case "BYE":
+                    case "BYE": //return bye message
                         out.println("BYE: OK");
-                        return;
+                        return; //exit function, thereby freeing resources
                     case "END":
-                        out.println("END: OK");
-                        System.exit(0);
+                        out.println("END: OK"); //return end message
+                        System.exit(0); //shut down server
                     default:
                         String output;
                         try {
-                            int inputNumber = Integer.parseInt(inputLine);
-                            output = "TAX IS " + taxEngine.calculate(inputNumber);
+                            int inputNumber = Integer.parseInt(inputLine); //try parse int from the client
+                            output = taxEngine.calculate(inputNumber); //return tax value
                         } catch (NumberFormatException e) {
-                            output = "Unknown input";
+                            output = "Unknown input"; //prepare error if wrong value was sent
                         }
-                        out.println(output);
+                        out.println(output); //return message to the client
                 }
             }
         } catch (IOException e) {
